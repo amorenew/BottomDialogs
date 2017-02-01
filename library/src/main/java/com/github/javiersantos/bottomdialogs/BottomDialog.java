@@ -153,7 +153,7 @@ public class BottomDialog {
                 bottomDialog.dismiss();
                 timer.cancel(); //this will cancel the timer of the system
             }
-        }, 5000); // the timer will count 5 seconds....
+        }, builder.duration); // the timer will count 5 seconds....
 
         return bottomDialog;
     }
@@ -199,6 +199,7 @@ public class BottomDialog {
         private int textColor;
         private int textBackgroundColor;
         private int textSize = 12;
+        private int duration = 3000;
 
         public Builder(@NonNull Context context) {
             this.context = context;
@@ -353,6 +354,11 @@ public class BottomDialog {
 
         public Builder setTextSize(int textSize) {
             this.textSize = textSize;
+            return this;
+        }
+
+        public Builder setDuration(int duration) {
+            this.duration = duration;
             return this;
         }
     }

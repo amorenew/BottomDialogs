@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         new BottomDialog.Builder(this)
                 .setText("Awesome!")
+                .setDuration(3000)
                 .setTextSize(16)
                 .setTextColor(R.color.toast_text_color)
                 .setBackgroundColor(R.color.toast_background_color)

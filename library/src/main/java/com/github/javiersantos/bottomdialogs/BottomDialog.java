@@ -158,6 +158,11 @@ public class BottomDialog {
         return bottomDialog;
     }
 
+    int dpToPixels(Context context, int dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
+    }
+
     public interface ButtonCallback {
 
         void onClick(@NonNull BottomDialog dialog);
@@ -351,5 +356,4 @@ public class BottomDialog {
             return this;
         }
     }
-
 }

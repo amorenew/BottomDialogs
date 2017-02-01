@@ -3,35 +3,33 @@ package com.github.javiersantos.bottomdialogs;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class BottomDialog {
     protected final Builder mBuilder;
-
-    public final Builder getBuilder() {
-        return mBuilder;
-    }
+    private Timer timer = new Timer();
 
     protected BottomDialog(Builder builder) {
         mBuilder = builder;
         mBuilder.bottomDialog = initBottomDialog(builder);
+    }
+
+    public final Builder getBuilder() {
+        return mBuilder;
     }
 
     @UiThread
@@ -51,34 +49,34 @@ public class BottomDialog {
         final Dialog bottomDialog = new Dialog(builder.context, R.style.BottomDialogs);
         View view = LayoutInflater.from(builder.context).inflate(R.layout.library_bottom_dialog, null);
 
-        ImageView vIcon = (ImageView) view.findViewById(R.id.bottomDialog_icon);
-        TextView vTitle = (TextView) view.findViewById(R.id.bottomDialog_title);
-        TextView vContent = (TextView) view.findViewById(R.id.bottomDialog_content);
-        FrameLayout vCustomView = (FrameLayout) view.findViewById(R.id.bottomDialog_custom_view);
-        Button vNegative = (Button) view.findViewById(R.id.bottomDialog_cancel);
-        Button vPositive = (Button) view.findViewById(R.id.bottomDialog_ok);
+//        ImageView vIcon = (ImageView) view.findViewById(R.id.bottomDialog_icon);
+//        TextView vTitle = (TextView) view.findViewById(R.id.bottomDialog_title);
+//        TextView vContent = (TextView) view.findViewById(R.id.bottomDialog_content);
+//        FrameLayout vCustomView = (FrameLayout) view.findViewById(R.id.bottomDialog_custom_view);
+//        Button vNegative = (Button) view.findViewById(R.id.bottomDialog_cancel);
+//        Button vPositive = (Button) view.findViewById(R.id.bottomDialog_ok);
 
-        if (builder.icon != null) {
-            vIcon.setVisibility(View.VISIBLE);
-            vIcon.setImageDrawable(builder.icon);
-        }
+//        if (builder.icon != null) {
+//            vIcon.setVisibility(View.VISIBLE);
+//            vIcon.setImageDrawable(builder.icon);
+//        }
 
-        if (builder.title != null) {
-            vTitle.setText(builder.title);
-        }
+//        if (builder.title != null) {
+//            vTitle.setText(builder.title);
+//        }
 
-        if (builder.content != null) {
-            vContent.setText(builder.content);
-        }
+//        if (builder.content != null) {
+//            vContent.setText(builder.content);
+//        }
 
-        if (builder.customView != null) {
+        /*if (builder.customView != null) {
             if (builder.customView.getParent() != null)
                 ((ViewGroup) builder.customView.getParent()).removeAllViews();
             vCustomView.addView(builder.customView);
             vCustomView.setPadding(builder.customViewPaddingLeft, builder.customViewPaddingTop, builder.customViewPaddingRight, builder.customViewPaddingBottom);
-        }
+        }*/
 
-        if (builder.btn_positive != null) {
+     /*   if (builder.btn_positive != null) {
             vPositive.setVisibility(View.VISIBLE);
             vPositive.setText(builder.btn_positive);
             vPositive.setOnClickListener(new View.OnClickListener() {
@@ -109,9 +107,9 @@ public class BottomDialog {
                 // noinspection deprecation
                 vPositive.setBackgroundDrawable(buttonBackground);
             }
-        }
+        }*/
 
-        if (builder.btn_negative != null) {
+      /*  if (builder.btn_negative != null) {
             vNegative.setVisibility(View.VISIBLE);
             vNegative.setText(builder.btn_negative);
             vNegative.setOnClickListener(new View.OnClickListener() {
@@ -127,14 +125,42 @@ public class BottomDialog {
             if (builder.btn_colorNegative != 0) {
                 vNegative.setTextColor(builder.btn_colorNegative);
             }
-        }
-
+        }*/
+        TextView tvText = (TextView) view.findViewById(R.id.tvText);
+        tvText.setText(builder.text);
+        tvText.setTextColor(ResourcesCompat.getColor(builder.context.getResources(), builder.textColor, null));
+        tvText.setTextSize(builder.textSize);
+        tvText.setBackgroundColor(ResourcesCompat.getColor(builder.context.getResources(), builder.textBackgroundColor, null));
         bottomDialog.setContentView(view);
         bottomDialog.setCancelable(builder.isCancelable);
-        bottomDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        bottomDialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         bottomDialog.getWindow().setGravity(Gravity.BOTTOM);
+        WindowManager.LayoutParams layoutParams = bottomDialog.getWindow().getAttributes();
+//        layoutParams.x = 100; // right margin
+        layoutParams.y = 70; // top margin
+        layoutParams.dimAmount = (float) 0.0;
+        bottomDialog.getWindow().setAttributes(layoutParams);
+        bottomDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+       /* // e.g. bottom + left margins:
+        dialog.getWindow().setGravity(Gravity.BOTTOM|Gravity.LEFT);
+        WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+        layoutParams.x = 100; // left margin
+        layoutParams.y = 170; // bottom margin
+        dialog.getWindow().setAttributes(layoutParams);*/
+        timer.schedule(new TimerTask() {
+            public void run() {
+                bottomDialog.dismiss();
+                timer.cancel(); //this will cancel the timer of the system
+            }
+        }, 5000); // the timer will count 5 seconds....
 
         return bottomDialog;
+    }
+
+    public interface ButtonCallback {
+
+        void onClick(@NonNull BottomDialog dialog);
     }
 
     public static class Builder {
@@ -164,6 +190,10 @@ public class BottomDialog {
 
         // Other options
         protected boolean isCancelable;
+        private String text = "";
+        private int textColor;
+        private int textBackgroundColor;
+        private int textSize = 12;
 
         public Builder(@NonNull Context context) {
             this.context = context;
@@ -191,37 +221,37 @@ public class BottomDialog {
             return this;
         }
 
-        public Builder setIcon(@NonNull Drawable icon) {
+        private Builder setIcon(@NonNull Drawable icon) {
             this.icon = icon;
             return this;
         }
 
-        public Builder setIcon(@DrawableRes int iconRes) {
+        private Builder setIcon(@DrawableRes int iconRes) {
             this.icon = ResourcesCompat.getDrawable(context.getResources(), iconRes, null);
             return this;
         }
 
-        public Builder setPositiveBackgroundColorResource(@ColorRes int buttonColorRes) {
+        private Builder setPositiveBackgroundColorResource(@ColorRes int buttonColorRes) {
             this.btn_colorPositiveBackground = ResourcesCompat.getColor(context.getResources(), buttonColorRes, null);
             return this;
         }
 
-        public Builder setPositiveBackgroundColor(int color) {
+        private Builder setPositiveBackgroundColor(int color) {
             this.btn_colorPositiveBackground = color;
             return this;
         }
 
-        public Builder setPositiveTextColorResource(@ColorRes int textColorRes) {
+        private Builder setPositiveTextColorResource(@ColorRes int textColorRes) {
             this.btn_colorPositive = ResourcesCompat.getColor(context.getResources(), textColorRes, null);
             return this;
         }
 
-        public Builder setPositiveTextColor(int color) {
+        private Builder setPositiveTextColor(int color) {
             this.btn_colorPositive = color;
             return this;
         }
 
-        public Builder setPositiveText(@StringRes int buttonTextRes) {
+        private Builder setPositiveText(@StringRes int buttonTextRes) {
             setPositiveText(this.context.getString(buttonTextRes));
             return this;
         }
@@ -231,22 +261,22 @@ public class BottomDialog {
             return this;
         }
 
-        public Builder onPositive(@NonNull ButtonCallback buttonCallback) {
+        private Builder onPositive(@NonNull ButtonCallback buttonCallback) {
             this.btn_positive_callback = buttonCallback;
             return this;
         }
 
-        public Builder setNegativeTextColorResource(@ColorRes int textColorRes) {
+        private Builder setNegativeTextColorResource(@ColorRes int textColorRes) {
             this.btn_colorNegative = ResourcesCompat.getColor(context.getResources(), textColorRes, null);
             return this;
         }
 
-        public Builder setNegativeTextColor(int color) {
+        private Builder setNegativeTextColor(int color) {
             this.btn_colorNegative = color;
             return this;
         }
 
-        public Builder setNegativeText(@StringRes int buttonTextRes) {
+        private Builder setNegativeText(@StringRes int buttonTextRes) {
             setNegativeText(this.context.getString(buttonTextRes));
             return this;
         }
@@ -301,11 +331,25 @@ public class BottomDialog {
             return bottomDialog;
         }
 
-    }
+        public Builder setText(String text) {
+            this.text = text;
+            return this;
+        }
 
-    public interface ButtonCallback {
+        public Builder setTextColor(@ColorRes int color) {
+            this.textColor = color;
+            return this;
+        }
 
-        void onClick(@NonNull BottomDialog dialog);
+        public Builder setBackgroundColor(@ColorRes int color) {
+            this.textBackgroundColor = color;
+            return this;
+        }
+
+        public Builder setTextSize(int textSize) {
+            this.textSize = textSize;
+            return this;
+        }
     }
 
 }

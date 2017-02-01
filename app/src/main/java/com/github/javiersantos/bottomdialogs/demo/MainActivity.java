@@ -45,11 +45,11 @@ public class MainActivity extends AppCompatActivity {
         View customView = inflater.inflate(R.layout.bottomdialog_layout, null);
 
         new BottomDialog.Builder(this)
-                .setTitle("Awesome!")
-                .setContent("Glad to see you like BottomDialogs! If you're up for it, we would really appreciate you reviewing us.")
+                .setText("Awesome!")
+                .setTextSize(16)
+                .setTextColor(R.color.toast_text_color)
+                .setBackgroundColor(R.color.toast_background_color)
                 .setCustomView(customView)
-                .setPositiveText("Google Play")
-                .setNegativeText("Close")
                 .show();
     }
 

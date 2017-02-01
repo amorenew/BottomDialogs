@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
 
     <color name="flat_pressed">#66999999</color>
+    <color name="toast_text_color">#FFF</color>
+    <color name="toast_background_color">#68B0D0</color>
 </resources>

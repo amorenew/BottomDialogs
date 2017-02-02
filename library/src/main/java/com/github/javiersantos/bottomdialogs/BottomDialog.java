@@ -1,5 +1,6 @@
 package com.github.javiersantos.bottomdialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -34,13 +35,17 @@ public class BottomDialog {
 
     @UiThread
     public void show() {
-        if (mBuilder != null && mBuilder.bottomDialog != null)
+        if (mBuilder != null && mBuilder.bottomDialog != null && isAttacheToWindow(mBuilder.context)) {
+            if (mBuilder.bottomDialog.isShowing()) {
+                mBuilder.bottomDialog.dismiss();
+            }
             mBuilder.bottomDialog.show();
+        }
     }
 
     @UiThread
     public void dismiss() {
-        if (mBuilder != null && mBuilder.bottomDialog != null)
+        if (mBuilder != null && mBuilder.bottomDialog != null && mBuilder.bottomDialog.isShowing())
             mBuilder.bottomDialog.dismiss();
     }
 
@@ -140,6 +145,11 @@ public class BottomDialog {
         layoutParams.y = 70; // top margin
         layoutParams.dimAmount = (float) 0.0;
         bottomDialog.getWindow().setAttributes(layoutParams);
+        //click outside dialog working
+        bottomDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        bottomDialog.setCancelable(false);
+        bottomDialog.setCanceledOnTouchOutside(false);
         bottomDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 
        /* // e.g. bottom + left margins:
@@ -150,7 +160,8 @@ public class BottomDialog {
         dialog.getWindow().setAttributes(layoutParams);*/
         timer.schedule(new TimerTask() {
             public void run() {
-                bottomDialog.dismiss();
+                if (isAttacheToWindow(builder.context))
+                    bottomDialog.dismiss();
                 timer.cancel(); //this will cancel the timer of the system
             }
         }, builder.duration); // the timer will count 5 seconds....
@@ -161,6 +172,11 @@ public class BottomDialog {
     int dpToPixels(Context context, int dp) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dp * scale + 0.5f);
+    }
+
+    public boolean isAttacheToWindow(Context context) {
+        Activity activity = (Activity) context;
+        return !activity.isFinishing() && !activity.isDestroyed();
     }
 
     public interface ButtonCallback {

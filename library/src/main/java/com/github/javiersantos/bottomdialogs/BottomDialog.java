@@ -45,7 +45,7 @@ public class BottomDialog {
 
     @UiThread
     public void dismiss() {
-        if (mBuilder != null && mBuilder.bottomDialog != null && mBuilder.bottomDialog.isShowing())
+        if (mBuilder != null && mBuilder.bottomDialog != null && mBuilder.bottomDialog.isShowing() && isAttacheToWindow(mBuilder.context))
             mBuilder.bottomDialog.dismiss();
     }
 
